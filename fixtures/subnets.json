@@ -1,0 +1,86 @@
+[
+  {
+    "netuid": 1,
+    "symbol": "SN1",
+    "name": "Apex",
+    "price": 12.34,
+    "circulating_supply": 10000
+  },
+  {
+    "netuid": 4,
+    "symbol": "SN4",
+    "name": "Targon",
+    "price": 8.73,
+    "circulating_supply": 9000
+  },
+  {
+    "netuid": 12,
+    "symbol": "SN12",
+    "name": "Compute",
+    "price": 7.91,
+    "circulating_supply": 8000
+  },
+  {
+    "netuid": 8,
+    "symbol": "SN8",
+    "name": "Storage",
+    "price": 5.5,
+    "circulating_supply": 7000
+  },
+  {
+    "netuid": 21,
+    "symbol": "SN21",
+    "name": "Oracle",
+    "price": 3.25,
+    "circulating_supply": 6000
+  },
+  {
+    "netuid": 3,
+    "symbol": "SN3",
+    "name": "Templar",
+    "price": 2.4,
+    "circulating_supply": 5000
+  },
+  {
+    "netuid": 9,
+    "symbol": "SN9",
+    "name": "Pretrain",
+    "price": 1.8,
+    "circulating_supply": 4000
+  },
+  {
+    "netuid": 18,
+    "symbol": "SN18",
+    "name": "Cortex",
+    "price": 1.1,
+    "circulating_supply": 3500
+  },
+  {
+    "netuid": 5,
+    "symbol": "SN5",
+    "name": "OpenKaito",
+    "price": 0.9,
+    "circulating_supply": 3000
+  },
+  {
+    "netuid": 14,
+    "symbol": "SN14",
+    "name": "Inference",
+    "price": 0.75,
+    "circulating_supply": 2500
+  },
+  {
+    "netuid": 7,
+    "symbol": "SN7",
+    "name": "SubVortex",
+    "price": 0.4,
+    "circulating_supply": 2000
+  },
+  {
+    "netuid": 42,
+    "symbol": "SN42",
+    "name": "Research",
+    "price": 0.2,
+    "circulating_supply": 1000
+  }
+]
