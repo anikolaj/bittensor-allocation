@@ -36,9 +36,6 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
 
-    print("Running bittensor-allocation!")
-    print(f"mode={args.mode} network={args.network} input={args.input}")
-
     if args.mode == "rpc":
         client = BittensorSubnetClient(args.network)
     elif args.mode == "fixture":
