@@ -25,7 +25,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=str,
         help="Path to a subnet fixture JSON file. Used in fixture mode.",
     )
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if args.mode == "rpc" and not args.network:
+        parser.error("--network is required when --mode is rpc")
+    if args.mode == "fixture" and not args.input:
+        parser.error("--input is required when --mode is fixture")
+    return args
 
 
 def main() -> None:
@@ -45,7 +50,7 @@ def main() -> None:
     allocations = calculate_allocations(result.subnets)
     write_output(
         allocations,
-        ".",
+        "output",
         source=args.mode,
         network=args.network,
         subnets_considered=result.subnets_considered,
