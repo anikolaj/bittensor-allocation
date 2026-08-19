@@ -31,3 +31,16 @@ uv run python main.py --mode fixture --input ./fixtures/subnets.json
 uv sync --group dev
 uv run pytest
 ```
+
+## Assumptions
+
+- `market_cap = price * circulating_supply`
+- `weight = market_cap / total_market_cap`, then largest-remainder rounding
+  to 4 decimal places so weights sum to `1.0000`
+- Results are sorted by descending market cap (ties by `netuid`)
+- In RPC mode, circulating supply is `SubtensorModule.SubnetAlphaOut`
+  (outstanding alpha, not pool reserve `SubnetAlphaIn`)
+- `subnets_considered` is the number of subnets the client examined
+- `subnets_excluded` is how many of those were dropped for missing price or
+  outstanding-alpha data (fixture mode currently excludes `0`)
+- Malformed RPC numeric values raise rather than counting as exclusions
