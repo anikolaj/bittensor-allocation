@@ -1,0 +1,7 @@
+[project]
+name = "bittensor-allocation"
+version = "0.1.0"
+description = "Market-weighted allocation across Bittensor subnets"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
