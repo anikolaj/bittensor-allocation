@@ -31,6 +31,8 @@ class BittensorSubnetClient(SubnetClient):
         subnet_data: list[SubnetData] = []
         for subnet_info in subnet_infos:
             netuid = int(subnet_info.netuid)
+            # Missing price or outstanding alpha is an exclusion. A value that
+            # exists but cannot be converted to Decimal is treated as fatal.
             if netuid not in prices or netuid not in circulating_supplies:
                 continue
 
@@ -69,11 +71,11 @@ class BittensorSubnetClient(SubnetClient):
 
 
 class FixtureSubnetClient(SubnetClient):
-    def __init__(self, input: str):
-        self.input = input
+    def __init__(self, input_path: str):
+        self.input_path = input_path
 
     def get_subnet_data(self) -> SubnetDataResult:
-        with open(self.input) as f:
+        with open(self.input_path) as f:
             payload = json.load(f)
 
         subnet_data: list[SubnetData] = []
