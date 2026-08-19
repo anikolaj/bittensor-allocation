@@ -12,6 +12,13 @@ class SubnetData:
 
 
 @dataclass
+class SubnetDataResult:
+    subnets: list[SubnetData]
+    subnets_considered: int
+    subnets_excluded: int
+
+
+@dataclass
 class Allocation:
     subnet_data: SubnetData
     market_cap: Decimal
