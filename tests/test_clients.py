@@ -154,10 +154,11 @@ def test_fixture_client_invalid_json_raises(tmp_path):
 
 
 def test_fixture_client_non_array_raises(tmp_path):
-    path = write_fixture(tmp_path / "subnets.json", {"netuid": 1})
+    path = tmp_path / "subnets.json"
+    path.write_text(json.dumps({"netuid": 1}))
 
     with pytest.raises(ValueError, match="JSON array"):
-        FixtureSubnetClient(path).get_subnet_data()
+        FixtureSubnetClient(str(path)).get_subnet_data()
 
 
 def test_fixture_client_incomplete_row_is_excluded(tmp_path):

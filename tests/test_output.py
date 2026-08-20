@@ -54,11 +54,11 @@ def write(
     tmp_path,
     allocations: list[Allocation],
     *,
-    source="rpc",
-    network="finney",
-    subnets_considered=None,
-    subnets_excluded=0,
-    generated_at=FIXED_TIME,
+    source: str = "rpc",
+    network: str | None = "finney",
+    subnets_considered: int | None = None,
+    subnets_excluded: int = 0,
+    generated_at: datetime | None = FIXED_TIME,
 ):
     write_output(
         allocations,
