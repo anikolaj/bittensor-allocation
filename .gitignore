@@ -9,5 +9,13 @@ wheels/
 # Virtual environments
 .venv
 
+# Test
+.pytest_cache/
+
 # VSCode
 .vscode/
+
+# Generated allocation artifacts (keep checked-in samples)
+output/*
+!output/allocation.sample.json
+!output/summary.sample.md

@@ -5,16 +5,26 @@ universe, and writes a market-weighted allocation list.
 
 Python 3.11+ and `bittensor==11.1.0`.
 
+## Layout
+
+```text
+src/                 # application code
+tests/               # pytest suite
+fixtures/subnets.json
+output/              # runtime output (gitignored) + checked-in samples
+```
+
 ## RPC mode
 
 Live chain data from the Bittensor SDK:
 
 ```bash
 uv sync
-uv run python main.py --mode rpc --network finney
+uv run python src/main.py --mode rpc --network finney
 ```
 
-Requires network access to the `finney` RPC endpoint.
+Requires network access to the `finney` RPC endpoint. Writes
+`output/allocation.json` and `output/summary.md`.
 
 ## Fixture mode
 
@@ -22,7 +32,7 @@ No chain access. Uses `fixtures/subnets.json`:
 
 ```bash
 uv sync
-uv run python main.py --mode fixture --input ./fixtures/subnets.json
+uv run python src/main.py --mode fixture --input ./fixtures/subnets.json
 ```
 
 ## Tests
@@ -31,6 +41,26 @@ uv run python main.py --mode fixture --input ./fixtures/subnets.json
 uv sync --group dev
 uv run pytest
 ```
+
+## Docker
+
+```bash
+docker build -t submission .
+docker run submission --mode fixture --input ./fixtures/subnets.json
+```
+
+That fixture run does not need live chain access. It writes
+`output/allocation.json` and `output/summary.md` inside the container and
+prints a one-line summary to stdout.
+
+To copy the files out of the container:
+
+```bash
+docker run --rm -v "$PWD/output:/app/output" submission --mode fixture --input ./fixtures/subnets.json
+```
+
+Sample fixture output is checked in as `output/allocation.sample.json` and
+`output/summary.sample.md`.
 
 ## Assumptions
 

@@ -1,0 +1,11 @@
+.venv
+.git
+.pytest_cache
+__pycache__
+*.pyc
+.vscode
+output
+*.egg-info
+tests
+AI_USAGE.md
+README.md
