@@ -99,12 +99,10 @@ def test_weights_sum_to_one_and_have_four_decimals():
     assert all(weight.as_tuple().exponent == -4 for weight in weights)
 
 
-def test_largest_remainder_uses_fractional_remainders_not_largest_market_cap():
+def test_rounding_remainder_goes_to_largest_market_cap():
     # Exact weights: A=0.33336, B=0.33335, C=0.33329.
-    # Remainders after truncation: C=.00009, A=.00006, B=.00005.
-    # Independent rounding would give 0.3334, 0.3334, 0.3333 and then take
-    # 0.0001 from A because A is largest. Largest-remainder instead gives
-    # leftover units to C then A, so B stays at 0.3333.
+    # Half-up to 4 decimals: 0.3334, 0.3334, 0.3333 (sum 1.0001).
+    # Spec: apply the -0.0001 remainder to the largest allocation (A).
     allocations = calculate_allocations(
         [
             subnet(1, price="1", circulating_supply="33336"),
@@ -113,25 +111,26 @@ def test_largest_remainder_uses_fractional_remainders_not_largest_market_cap():
         ]
     )
 
-    by_netuid = {item.subnet_data.netuid: item.weight for item in allocations}
-    assert by_netuid[1] == Decimal("0.3334")
-    assert by_netuid[2] == Decimal("0.3333")
-    assert by_netuid[3] == Decimal("0.3333")
-    assert sum(by_netuid.values()) == Decimal("1.0000")
     assert [item.subnet_data.netuid for item in allocations] == [1, 2, 3]
+    assert allocations[0].weight == Decimal("0.3333")
+    assert allocations[1].weight == Decimal("0.3334")
+    assert allocations[2].weight == Decimal("0.3333")
+    assert sum(item.weight for item in allocations) == Decimal("1.0000")
 
 
-def test_equal_remainders_break_ties_deterministically():
+def test_positive_rounding_remainder_goes_to_largest_market_cap():
+    # Three equal caps round to 0.3333 each (sum 0.9999). The +0.0001
+    # remainder goes to the first-ranked subnet (lowest netuid on a tie).
     allocations = calculate_allocations(
         [
-            subnet(1, price="1", circulating_supply="33335"),
-            subnet(2, price="1", circulating_supply="33335"),
-            subnet(3, price="1", circulating_supply="33330"),
+            subnet(3, price="1", circulating_supply="1"),
+            subnet(1, price="1", circulating_supply="1"),
+            subnet(2, price="1", circulating_supply="1"),
         ]
     )
 
-    by_netuid = {item.subnet_data.netuid: item.weight for item in allocations}
-
-    assert by_netuid[1] == Decimal("0.3334")
-    assert by_netuid[2] == Decimal("0.3333")
-    assert by_netuid[3] == Decimal("0.3333")
+    assert [item.subnet_data.netuid for item in allocations] == [1, 2, 3]
+    assert allocations[0].weight == Decimal("0.3334")
+    assert allocations[1].weight == Decimal("0.3333")
+    assert allocations[2].weight == Decimal("0.3333")
+    assert sum(item.weight for item in allocations) == Decimal("1.0000")

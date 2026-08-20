@@ -1,9 +1,10 @@
-from decimal import ROUND_DOWN, Decimal
+from decimal import ROUND_HALF_UP, Decimal
 
 from models import Allocation, SubnetData
 
-WEIGHT_SCALE = Decimal("10000")
+WEIGHT_QUANTUM = Decimal("0.0001")
 ZERO_WEIGHT = Decimal("0.0000")
+ONE = Decimal("1.0000")
 
 
 def calculate_allocations(subnet_data: list[SubnetData]) -> list[Allocation]:
@@ -31,43 +32,24 @@ def calculate_allocations(subnet_data: list[SubnetData]) -> list[Allocation]:
             for subnet, market_cap in ranked
         ]
 
-    # Largest-remainder method, working in 0.0001 units (x10000).
-    # quota is the exact number of units each subnet is owed.
-    # units is the truncated whole-unit share; remainders are the leftover
-    # fractions used to decide who gets extra units.
-    quotas = [
-        (market_cap / total_market_cap) * WEIGHT_SCALE
+    # Round each weight to 4 decimals, then apply any remainder to the
+    # largest allocation (ranked[0]) so weights sum to 1.0000.
+    weights = [
+        (market_cap / total_market_cap).quantize(
+            WEIGHT_QUANTUM,
+            rounding=ROUND_HALF_UP,
+        )
         for _, market_cap in ranked
     ]
-    units = [quota.to_integral_value(rounding=ROUND_DOWN) for quota in quotas]
-    remainders = [quota - unit for quota, unit in zip(quotas, units)]
+    remainder = ONE - sum(weights, Decimal("0"))
+    if remainder != 0:
+        weights[0] += remainder
 
-    # Truncation usually undershoots 10000 units (1.0000). Give leftover
-    # units to the biggest remainders. If it overshoots, take units from
-    # the smallest remainders. Ties keep the ranked order above.
-    leftover = int(WEIGHT_SCALE - sum(units))
-    ranked_indexes = range(len(ranked))
-    if leftover > 0:
-        recipients = sorted(
-            ranked_indexes,
-            key=lambda index: (-remainders[index], index),
-        )
-        for index in recipients[:leftover]:
-            units[index] += 1
-    elif leftover < 0:
-        donors = sorted(
-            ranked_indexes,
-            key=lambda index: (remainders[index], index),
-        )
-        for index in donors[: -leftover]:
-            units[index] -= 1
-
-    # Convert unit counts back to 4-decimal weights (unit / 10000).
     return [
         Allocation(
             subnet_data=subnet,
             market_cap=market_cap,
-            weight=unit / WEIGHT_SCALE,
+            weight=weight,
         )
-        for (subnet, market_cap), unit in zip(ranked, units)
+        for (subnet, market_cap), weight in zip(ranked, weights)
     ]

@@ -65,8 +65,9 @@ Sample fixture output is checked in as `output/allocation.sample.json` and
 ## Assumptions
 
 - `market_cap = price * circulating_supply`
-- `weight = market_cap / total_market_cap`, then largest-remainder rounding
-  to 4 decimal places so weights sum to `1.0000`
+- `weight = market_cap / total_market_cap`, rounded to 4 decimals, with any
+  rounding remainder applied to the largest market-cap allocation so weights
+  sum to `1.0000`
 - Results are sorted by descending market cap (ties by `netuid`)
 - In RPC mode, circulating supply is `SubtensorModule.SubnetAlphaOut`
   (outstanding alpha, not pool reserve `SubnetAlphaIn`)

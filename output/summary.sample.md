@@ -21,4 +21,4 @@
 
 ## Assumptions
 
-Market cap is price times circulating alpha supply. In RPC mode, circulating supply is derived from SubtensorModule.SubnetAlphaOut (outstanding alpha). Weights are rounded to 4 decimal places with the largest-remainder method so they sum to 1.0000. 12 subnet(s) were considered and 0 were excluded.
+Market cap is price times circulating alpha supply. In RPC mode, circulating supply is derived from SubtensorModule.SubnetAlphaOut (outstanding alpha). Weights are rounded to 4 decimal places, with any rounding remainder applied to the largest market-cap allocation so they sum to 1.0000. 12 subnet(s) were considered and 0 were excluded.
