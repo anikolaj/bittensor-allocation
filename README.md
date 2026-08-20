@@ -77,3 +77,7 @@ Sample fixture output is checked in as `output/allocation.sample.json` and
 - Malformed RPC numeric values raise rather than counting as exclusions
 - Invalid fixture JSON or a non-array root fails with a clear error; bad rows
   inside an otherwise valid fixture are skipped and counted as excluded
+
+## AI Usage
+
+See [AI_USAGE.md](AI_USAGE.md) for details on the AI tools used during development and how their output was verified.
