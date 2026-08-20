@@ -71,27 +71,57 @@ class BittensorSubnetClient(SubnetClient):
 
 
 class FixtureSubnetClient(SubnetClient):
+    REQUIRED_FIELDS = ("netuid", "symbol", "name", "price", "circulating_supply")
+
     def __init__(self, input_path: str):
         self.input_path = input_path
 
     def get_subnet_data(self) -> SubnetDataResult:
-        with open(self.input_path) as f:
-            payload = json.load(f)
+        try:
+            with open(self.input_path) as f:
+                payload = json.load(f)
+        except FileNotFoundError:
+            raise
+        except OSError as exc:
+            raise ValueError(f"Unable to read fixture file: {self.input_path}") from exc
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"Fixture file is not valid JSON: {self.input_path}") from exc
+
+        if not isinstance(payload, list):
+            raise ValueError(
+                f"Fixture file must contain a JSON array of subnet objects: {self.input_path}"
+            )
 
         subnet_data: list[SubnetData] = []
+        excluded = 0
         for item in payload:
-            subnet_data.append(
-                SubnetData(
-                    netuid=int(item["netuid"]),
-                    symbol=str(item["symbol"]),
-                    name=str(item["name"]),
-                    price=Decimal(str(item["price"])),
-                    circulating_supply=Decimal(str(item["circulating_supply"])),
-                )
-            )
+            parsed = self._parse_subnet(item)
+            if parsed is None:
+                excluded += 1
+                continue
+            subnet_data.append(parsed)
 
         return SubnetDataResult(
             subnets=subnet_data,
-            subnets_considered=len(subnet_data),
-            subnets_excluded=0,
+            subnets_considered=len(payload),
+            subnets_excluded=excluded,
         )
+
+    def _parse_subnet(self, item: object) -> SubnetData | None:
+        """Return SubnetData for a valid row, or None to exclude incomplete/malformed rows."""
+        if not isinstance(item, dict):
+            return None
+        if any(field not in item for field in self.REQUIRED_FIELDS):
+            return None
+
+        try:
+            return SubnetData(
+                netuid=int(item["netuid"]),
+                symbol=str(item["symbol"]),
+                name=str(item["name"]),
+                price=Decimal(str(item["price"])),
+                circulating_supply=Decimal(str(item["circulating_supply"])),
+            )
+        except (InvalidOperation, TypeError, ValueError):
+            return None
+

@@ -72,5 +72,7 @@ Sample fixture output is checked in as `output/allocation.sample.json` and
   (outstanding alpha, not pool reserve `SubnetAlphaIn`)
 - `subnets_considered` is the number of subnets the client examined
 - `subnets_excluded` is how many of those were dropped for missing price or
-  outstanding-alpha data (fixture mode currently excludes `0`)
+  outstanding-alpha data (RPC), or for incomplete/malformed fixture rows
 - Malformed RPC numeric values raise rather than counting as exclusions
+- Invalid fixture JSON or a non-array root fails with a clear error; bad rows
+  inside an otherwise valid fixture are skipped and counted as excluded

@@ -149,18 +149,76 @@ def test_fixture_client_invalid_json_raises(tmp_path):
     path = tmp_path / "subnets.json"
     path.write_text("{not-json")
 
-    with pytest.raises(json.JSONDecodeError):
+    with pytest.raises(ValueError, match="not valid JSON"):
         FixtureSubnetClient(str(path)).get_subnet_data()
 
 
-def test_fixture_client_missing_required_field_raises(tmp_path):
+def test_fixture_client_non_array_raises(tmp_path):
+    path = write_fixture(tmp_path / "subnets.json", {"netuid": 1})
+
+    with pytest.raises(ValueError, match="JSON array"):
+        FixtureSubnetClient(path).get_subnet_data()
+
+
+def test_fixture_client_incomplete_row_is_excluded(tmp_path):
     path = write_fixture(
         tmp_path / "subnets.json",
-        [{"netuid": 1, "symbol": "SN1", "name": "Apex", "price": "1"}],
+        [
+            {
+                "netuid": 1,
+                "symbol": "SN1",
+                "name": "Apex",
+                "price": "1",
+                "circulating_supply": "10",
+            },
+            {"netuid": 2, "symbol": "SN2"},
+        ],
     )
 
-    with pytest.raises(KeyError):
-        FixtureSubnetClient(path).get_subnet_data()
+    result = FixtureSubnetClient(path).get_subnet_data()
+
+    assert [subnet.netuid for subnet in result.subnets] == [1]
+    assert result.subnets_considered == 2
+    assert result.subnets_excluded == 1
+
+
+def test_fixture_client_malformed_numeric_value_is_excluded(tmp_path):
+    path = write_fixture(
+        tmp_path / "subnets.json",
+        [
+            {
+                "netuid": 1,
+                "symbol": "SN1",
+                "name": "Apex",
+                "price": "1",
+                "circulating_supply": "10",
+            },
+            {
+                "netuid": 2,
+                "symbol": "SN2",
+                "name": "Broken",
+                "price": "abc",
+                "circulating_supply": "10",
+            },
+        ],
+    )
+
+    result = FixtureSubnetClient(path).get_subnet_data()
+
+    assert [subnet.netuid for subnet in result.subnets] == [1]
+    assert result.subnets_considered == 2
+    assert result.subnets_excluded == 1
+
+
+def test_fixture_client_non_object_row_is_excluded(tmp_path):
+    path = tmp_path / "subnets.json"
+    path.write_text(json.dumps([{"netuid": 1, "symbol": "SN1", "name": "Apex", "price": "1", "circulating_supply": "10"}, "bad"]))
+
+    result = FixtureSubnetClient(str(path)).get_subnet_data()
+
+    assert len(result.subnets) == 1
+    assert result.subnets_considered == 2
+    assert result.subnets_excluded == 1
 
 
 @patch("clients.bt.Subtensor")

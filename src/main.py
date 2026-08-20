@@ -56,5 +56,8 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (ValueError, FileNotFoundError) as exc:
+        raise SystemExit(f"error: {exc}") from exc
 
